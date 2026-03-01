@@ -33,17 +33,31 @@ client.on("message", async (topic, message) => {
       return;
     }
 
-    const { error } = await supabase.from("readings").insert([
-      {
-        farm_id,
-        device_id,
-        seq,
-        ph,
-        ec_uS_cm,
-        temp_c,
-        server_received_at: new Date().toISOString(),
-      },
-    ]);
+// Deduplication check
+const { data: existing } = await supabase
+  .from("readings")
+  .select("id")
+  .eq("device_id", device_id)
+  .eq("seq", seq)
+  .limit(1);
+
+if (existing && existing.length > 0) {
+  console.log(`Duplicate message ignored → ${device_id} (#${seq})`);
+  return;
+}
+
+// Insert new telemetry
+const { error } = await supabase.from("readings").insert([
+  {
+    farm_id,
+    device_id,
+    seq,
+    ph,
+    ec_uS_cm,
+    temp_c,
+    server_received_at: new Date().toISOString(),
+  },
+]);
 
     if (error) {
       console.error("Database insert error:", error.message);
