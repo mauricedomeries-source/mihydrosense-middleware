@@ -58,7 +58,54 @@ Sensors (pH, EC, Temperature)
 - Designed for burst replay after connectivity loss
 
 ---
+---
 
+## System Architecture Overview
+
+MiHydroSense Middleware acts as the real-time ingestion layer between distributed hydroponic sensor networks and the cloud analytics platform.
+
+### Data Flow
+
+1. Hydroponic sensors (pH, EC, temperature) transmit telemetry via WiFi.
+2. Data Logger publishes MQTT messages to EMQX broker.
+3. Middleware subscribes to multi-tenant telemetry topics.
+4. Payloads are validated and range-checked.
+5. Sequence-based deduplication prevents replay duplication.
+6. Cleaned data is persisted to Supabase (Postgres).
+7. WeWeb dashboard consumes structured telemetry for real-time monitoring.
+
+### Design Principles
+
+- Stateless ingestion layer
+- Multi-tenant topic isolation
+- Idempotent message processing
+- Defensive validation
+- Cloud-native deployment (Docker-ready)
+- Designed for climate-resilient agriculture in the UK and emerging markets
+
+---
+
+## Deployment Model
+
+The service can be deployed:
+
+- As a containerized service (Docker)
+- On UK cloud infrastructure (AWS, Azure, GCP)
+- Behind secure TLS-enabled MQTT brokers
+- With horizontal scaling support
+
+---
+
+## Vision
+
+MiHydroSense is building a climate-resilient precision hydroponic intelligence platform, enabling:
+
+- Water efficiency optimisation
+- Nutrient balance stability
+- Early anomaly detection
+- Scalable multi-farm monitoring
+
+This middleware forms the backbone of the real-time data intelligence layer.
 ## Status
 
 Initial scaffold created.  
