@@ -1,3 +1,4 @@
+import { validatePayload } from "./validator.js";
 import mqtt from "mqtt";
 import { createClient } from "@supabase/supabase-js";
 
@@ -28,10 +29,12 @@ client.on("message", async (topic, message) => {
 
     const { farm_id, device_id, seq, ph, ec_uS_cm, temp_c } = payload;
 
-    if (!farm_id || !device_id || seq === undefined) {
-      console.warn("Invalid payload structure:", payload);
-      return;
-    }
+   const validation = validatePayload(payload);
+
+if (!validation.valid) {
+  console.warn("Invalid payload:", validation.reason);
+  return;
+}
 
 // Deduplication check
 const { data: existing } = await supabase
